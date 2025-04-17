@@ -55,8 +55,11 @@ const Login = () => {
         if (validateForm()) {
             // Here you would typically make an API call to your backend
             console.log('Form submitted:', formData);
-            // For demo purposes, let's just show an alert
+            // For demo purposes, let's just show an alert and navigate
             alert(isLogin ? 'Login successful!' : 'Account created successfully!');
+            if (isLogin) {
+                navigate('/home');
+            }
         }
     };
 
