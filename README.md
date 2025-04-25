@@ -49,6 +49,23 @@ src/
 └── assets/        # Static assets
 ```
 
+## .env Structure
+Backend-
+```
+PORT=5000
+MONGODB_URI=mongodb+srv://aadityahasabnis:Password123@techm.dsqxhdp.mongodb.net/?retryWrites=true&w=majority&appName=TechM
+JWT_SECRET=tech_mahindra
+JWT_EXPIRE=24h
+BACKEND_URL=http://localhost:5000
+
+```
+Frontend-
+```
+VITE_BACKEND_URL=http://localhost:5000
+```
+
+
+
 ## Features in Detail
 
 ### Authentication
