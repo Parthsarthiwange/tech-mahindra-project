@@ -1,16 +1,17 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const Login = () => {
     const navigate = useNavigate();
     const [isLogin, setIsLogin] = useState(true);
     const [formData, setFormData] = useState({
-        email: '',
+        userid: '',
         password: '',
-        name: '',
-        phone: ''
+        cpid: ''
     });
     const [errors, setErrors] = useState({});
+    const [apiError, setApiError] = useState('');
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -23,10 +24,10 @@ const Login = () => {
     const validateForm = () => {
         const newErrors = {};
         
-        if (!formData.email) {
-            newErrors.email = 'Email is required';
-        } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-            newErrors.email = 'Email is invalid';
+        if (!formData.userid) {
+            newErrors.userid = 'Email is required';
+        } else if (!/\S+@\S+\.\S+/.test(formData.userid)) {
+            newErrors.userid = 'Email is invalid';
         }
         
         if (!formData.password) {
@@ -35,30 +36,33 @@ const Login = () => {
             newErrors.password = 'Password must be at least 6 characters';
         }
 
-        if (!isLogin) {
-            if (!formData.name) {
-                newErrors.name = 'Name is required';
-            }
-            if (!formData.phone) {
-                newErrors.phone = 'Phone number is required';
-            } else if (!/^\d{10}$/.test(formData.phone)) {
-                newErrors.phone = 'Invalid phone number';
-            }
+        if (!isLogin && !formData.cpid) {
+            newErrors.cpid = 'CP ID is required';
         }
 
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
+        setApiError('');
+        
         if (validateForm()) {
-            // Here you would typically make an API call to your backend
-            console.log('Form submitted:', formData);
-            // For demo purposes, let's just show an alert and navigate
-            alert(isLogin ? 'Login successful!' : 'Account created successfully!');
-            if (isLogin) {
+            try {
+                const endpoint = isLogin ? '/api/users/login' : '/api/users/register';
+                const response = await axios.post(`http://localhost:5000${endpoint}`, formData);
+                
+                // Store token and user info in localStorage
+                localStorage.setItem('token', response.data.token);
+                localStorage.setItem('user', JSON.stringify({
+                    userid: response.data.userid,
+                    cpid: response.data.cpid
+                }));
+                
                 navigate('/home');
+            } catch (error) {
+                setApiError(error.response?.data?.message || 'An error occurred');
             }
         }
     };
@@ -75,43 +79,30 @@ const Login = () => {
                         : 'Fill in your details to create an account'}
                 </p>
 
+                {apiError && (
+                    <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4">
+                        {apiError}
+                    </div>
+                )}
+
                 <form onSubmit={handleSubmit} className="space-y-6">
                     {!isLogin && (
-                        <>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Full Name
-                                </label>
-                                <input
-                                    type="text"
-                                    name="name"
-                                    value={formData.name}
-                                    onChange={handleInputChange}
-                                    placeholder="Enter your full name"
-                                    className="w-full px-4 py-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#00a4a6] focus:border-transparent transition"
-                                />
-                                {errors.name && (
-                                    <span className="text-red-500 text-xs mt-1">{errors.name}</span>
-                                )}
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Phone Number
-                                </label>
-                                <input
-                                    type="tel"
-                                    name="phone"
-                                    value={formData.phone}
-                                    onChange={handleInputChange}
-                                    placeholder="Enter your phone number"
-                                    className="w-full px-4 py-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#00a4a6] focus:border-transparent transition"
-                                />
-                                {errors.phone && (
-                                    <span className="text-red-500 text-xs mt-1">{errors.phone}</span>
-                                )}
-                            </div>
-                        </>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                CP ID
+                            </label>
+                            <input
+                                type="text"
+                                name="cpid"
+                                value={formData.cpid}
+                                onChange={handleInputChange}
+                                placeholder="Enter your CP ID"
+                                className="w-full px-4 py-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#00a4a6] focus:border-transparent transition"
+                            />
+                            {errors.cpid && (
+                                <span className="text-red-500 text-xs mt-1">{errors.cpid}</span>
+                            )}
+                        </div>
                     )}
 
                     <div>
@@ -120,14 +111,14 @@ const Login = () => {
                         </label>
                         <input
                             type="email"
-                            name="email"
-                            value={formData.email}
+                            name="userid"
+                            value={formData.userid}
                             onChange={handleInputChange}
                             placeholder="Enter your email"
                             className="w-full px-4 py-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#00a4a6] focus:border-transparent transition"
                         />
-                        {errors.email && (
-                            <span className="text-red-500 text-xs mt-1">{errors.email}</span>
+                        {errors.userid && (
+                            <span className="text-red-500 text-xs mt-1">{errors.userid}</span>
                         )}
                     </div>
 

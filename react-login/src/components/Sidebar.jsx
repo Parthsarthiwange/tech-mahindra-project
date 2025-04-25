@@ -1,8 +1,20 @@
 import React, { useState } from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, Link, useLocation } from 'react-router-dom';
 
 const Sidebar = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const location = useLocation();
+  const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+  const isActive = (path) => {
+    return location.pathname === path;
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    window.location.href = '/login';
+  };
 
   return (
     <div className={`h-screen bg-white shadow-lg fixed left-0 top-0 transition-all duration-300 ${isCollapsed ? 'w-16' : 'w-64'}`}>
@@ -56,7 +68,23 @@ const Sidebar = () => {
                 </div>
               )}
             </NavLink>
+            <Link
+              to="/test-data-upload"
+              className={`block px-4 py-2 rounded-md transition ${
+                isActive('/test-data-upload')
+                  ? 'bg-white text-[#00a4a6]'
+                  : 'hover:bg-white/10'
+              }`}
+            >
+              Test Data Upload
+            </Link>
           </div>
+          <button
+            onClick={handleLogout}
+            className="block w-full px-4 py-2 rounded-md transition hover:bg-white/10 text-left"
+          >
+            Logout
+          </button>
         </nav>
       </div>
     </div>
