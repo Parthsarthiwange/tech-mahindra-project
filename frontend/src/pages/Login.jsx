@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import axiosInstance from '../utils/axios';
 
-const Login = () => {
+const Login = ({ setIsAuthenticated }) => {
     const navigate = useNavigate();
     const [isLogin, setIsLogin] = useState(true);
     const [formData, setFormData] = useState({
@@ -23,13 +23,13 @@ const Login = () => {
 
     const validateForm = () => {
         const newErrors = {};
-        
+
         if (!formData.userid) {
             newErrors.userid = 'Email is required';
         } else if (!/\S+@\S+\.\S+/.test(formData.userid)) {
             newErrors.userid = 'Email is invalid';
         }
-        
+
         if (!formData.password) {
             newErrors.password = 'Password is required';
         } else if (formData.password.length < 6) {
@@ -47,19 +47,20 @@ const Login = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setApiError('');
-        
+
         if (validateForm()) {
             try {
                 const endpoint = isLogin ? '/api/users/login' : '/api/users/register';
-                const response = await axios.post(`http://localhost:5000${endpoint}`, formData);
-                
+                const response = await axiosInstance.post(endpoint, formData);
+
                 // Store token and user info in localStorage
                 localStorage.setItem('token', response.data.token);
                 localStorage.setItem('user', JSON.stringify({
                     userid: response.data.userid,
                     cpid: response.data.cpid
                 }));
-                
+
+                setIsAuthenticated(true);
                 navigate('/home');
             } catch (error) {
                 setApiError(error.response?.data?.message || 'An error occurred');
@@ -74,8 +75,8 @@ const Login = () => {
                     {isLogin ? 'Welcome Back' : 'Create Account'}
                 </h1>
                 <p className="text-gray-600 text-center text-sm mb-8">
-                    {isLogin 
-                        ? 'Please enter your credentials to login' 
+                    {isLogin
+                        ? 'Please enter your credentials to login'
                         : 'Fill in your details to create an account'}
                 </p>
 
@@ -149,7 +150,7 @@ const Login = () => {
 
                 <p className="text-center mt-6 text-gray-600 text-sm">
                     {isLogin ? "Don't have an account? " : "Already have an account? "}
-                    <button 
+                    <button
                         onClick={() => setIsLogin(!isLogin)}
                         className="text-[#00a4a6] hover:underline font-medium"
                     >
@@ -161,4 +162,4 @@ const Login = () => {
     );
 };
 
-export default Login;    
+export default Login;

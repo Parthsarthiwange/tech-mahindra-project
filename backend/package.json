@@ -4,7 +4,7 @@
   "description": "Backend for Tech Mahindra Project",
   "license": "ISC",
   "author": "",
-  "type": "commonjs",
+  "type": "module",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
